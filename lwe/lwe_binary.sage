@@ -7,11 +7,9 @@ q = 2**16
 # message scaling factor
 delta = q//2
 # Error variance
-sigma = 40.0
+sigma = 10.0
 #Gaussian error
-def normal(): return abs(round(random.gauss(0, sigma)))
-# Verbosity
-verbose=False
+def normal(): return round(random.gauss(0, sigma))
 
 R = Zmod(q)
 
@@ -24,17 +22,19 @@ def keygen():
 def encrypt(m, s):
     a = vector([R.random_element() for _ in range(n)])
     e = normal()
-    print(e)
-    b = a * s + m * delta + e
+    
+    b = int(a * s) + m * delta + e
     if verbose:
-        print(f"e = {e:>016b}")
+        print(f"e = {e}")
+        print(f"e = {abs(e):>016b}")
     return (a, b)
 
 def decrypt(c, s):
     a, b = c
-    m = 0 if int(b - a*s) <= q//4 else 1
+    m = 0 if abs(b - int(a*s)) <= q//4 else 1
     e = int(b - a*s)
     if verbose:
+        print(e)
         print(f"e = {e:>016b}")
         print("m = ", m & 1)
     return m & 1
@@ -60,5 +60,3 @@ def test_add():
         c2 = encrypt(m2, s)
         assert((m1 + m2) % 2 == (decrypt(c1,s) + decrypt(c2,s)) % 2)
     
-def main():
-    s = keygen()

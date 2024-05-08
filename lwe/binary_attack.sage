@@ -1,9 +1,13 @@
+# Verbosity
+verbose=False
 
-def binary_attack(s):
+def recover_abs_e(ctxt, s):
     m = 0
     k = 0
     c = []
-    c.append(encrypt(m, s))
+    c.append(ctxt)
+    
+    print("---- Amplitude search ----")
     while True:
         k += 1
         c.append(enc_add(c[-1],c[-1]))
@@ -11,9 +15,9 @@ def binary_attack(s):
         
         if m != 0:
             break
-    
-    print("---- end of amplitude search ----")
-    print(f"k = {k}")
+    if verbose:
+        print("---- End of amplitude search ----")
+        print(f"k = {k}")
     alpha_star = 2**k
     alpha = 2**(k-1)
     ctxt = c[-2]
@@ -31,9 +35,19 @@ def binary_attack(s):
         alpha_star = alpha + 2**(k-i-2)
         
         if ceil(q/(4*alpha_star)) == floor(q/(4*alpha)):
-            print(f"e = {ceil(q/(4*alpha_star))}")
-            break
-    
+            if verbose:
+                print(f"Recovered abs(e) = {ceil(q/(4*alpha_star))}")
+            return ceil(q/(4*alpha_star))
+    return None
+                
+def binary_attack(s):
+    c1 = encrypt(0, s)
+    abs_e = recover_abs_e(c1, s)
+    print(abs_e)
+    c2 = encrypt(0, s)
+    abs_e = recover_abs_e(c2, s)
+    print(abs_e)
+  
 def main():
     s = keygen()
     binary_attack(s)
