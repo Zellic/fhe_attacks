@@ -1,2 +1,2 @@
-# fhe_attacks
+# FHE attacks
 attack implementation against FHE
