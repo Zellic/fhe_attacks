@@ -1,13 +1,13 @@
 import random
 
 # dimension
-n = 16
+n = 64
 # ciphertext modulus
-q = 2**16
+q = 2**16+1
 # message scaling factor
-delta = q//2
+delta = round(q/2)
 # Error variance
-sigma = 10.0
+sigma = 3.0
 #Gaussian error
 def normal(): return round(random.gauss(0, sigma))
 
@@ -32,7 +32,7 @@ def encrypt(m, s, verbose=False):
 def decrypt(c, s, verbose=False):
     a, b = c
     #m = 0 if abs(b - int(a*s)) <= q//4 else 1
-    m = round((b - int(a*s)) / delta) % 2
+    m = round(2*(b - int(a*s)) / q) % 2
     e = int(b - a*s)
     if verbose:
         print(e)

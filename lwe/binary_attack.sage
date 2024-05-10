@@ -53,22 +53,51 @@ def recover_abs_e(ctxt, s, verbose=False):
                 print(f"Recovered abs(e) = {ceil(q/(4*alpha_star))}")
             return ceil(q/(4*alpha_star)), ctxt
     return None, None
-                
+
+def test_abs_recovery(s):
+    win = 0
+    total = 0
+    for i in range(200):
+        ctxt, e = encrypt(0, s, verbose=False)
+        abs_e, _ = recover_abs_e(ctxt, s, verbose=False)
+        if abs_e == None:
+            continue
+        if abs_e == abs(e):
+            win +=1
+        total+=1
+    print(f"{win}/{total}")
+        
 def binary_attack(s):
     win = 0
     total =  0
-    for i in range(512):
+    abs_e_list_p = []
+    abs_e_list_n = []
+    
+    # First recovery
+    ctxt, e = encrypt(0, s, verbose=False)
+    print("-----------------------------")
+    print(e)
+    abs_e, c_init = recover_abs_e(ctxt, s, False)
+    abs_e_list_p.append(abs_e)
+    
+    for i in range(200):
         ctxt, e = encrypt(0, s, verbose=False)
-        print("-----------------------------")
-        print(e)
-        abs_e, c = recover_abs_e(ctxt, s, True)
-        if c == None:
+        abs_e, c = recover_abs_e(ctxt, s, verbose=False)
+        if abs_e == None:
             continue
         print(abs_e)
-        if abs(e) == abs_e:
-            win +=1
-        total += 1
-    print(f"{win} / {total}")
+        if check_same_sign(c_init, c, s):
+            abs_e_list_p.append(abs_e)
+        else:
+            abs_e_list_n.append(abs_e)
+        
+        if len(abs_e_list_p) >= 64:
+            break
+        if len(abs_e_list_n) >= 64:
+            break
+    
+    print(f"{len(abs_e_list_p)}")
+    print(f"{len(abs_e_list_n)}")
 
 def main():
     s = keygen()
