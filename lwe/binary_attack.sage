@@ -1,4 +1,4 @@
-# Verbosity
+from lwe_binary import LWE
 
 def check_same_sign(c1, c2, s):
     c = enc_add(c1, c2)
@@ -67,12 +67,12 @@ def test_abs_recovery(s):
         total+=1
     print(f"{win}/{total}")
         
-def binary_attack():
-    s = keygen()
+def binary_attack(lwe):
+    s = lwe.keygen()
     print(s)
-    M_p = matrix(GF(q), n)
-    M_n = matrix(GF(q), n)
-    V = VectorSpace(GF(q), n)
+    M_p = matrix(GF(lwe.q), lwe.n)
+    M_n = matrix(GF(lwe.q), lwe.n)
+    V = VectorSpace(GF(q), lwe.n)
     ctxt_p = []
     ctxt_n = []
     abs_e_list_p = []
@@ -135,8 +135,8 @@ def binary_attack():
     if index_p == 64:
         s_recovered = M_p.solve_right(V(b_p) + V(abs_e_list_p))
         for i in range(12):
-            ctxt, _ = encrypt(0, s)
-            m = decrypt(ctxt, s_recovered)
+            ctxt, _ = lwe.encrypt(0, s)
+            m = lwe.decrypt(ctxt, s_recovered)
             if m != 0:
                 break
         if i != 11:
@@ -144,7 +144,7 @@ def binary_attack():
     else:
         s_recovered = M_n.solve_right(V(b_n) + V(abs_e_list_n))
         for i in range(12):
-            ctxt, _ = encrypt(0, s)
+            ctxt, _ = lwe.encrypt(0, s)
             m = decrypt(ctxt, s_recovered)
             if m != 0:
                 break
@@ -154,4 +154,5 @@ def binary_attack():
     print(f"Total encryption: {total}")
 
 def main():
-    binary_attack()
+    lwe = LWE()
+    binary_attack(lwe)
