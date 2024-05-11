@@ -81,11 +81,13 @@ def binary_attack():
     index_n = 0
     b_p = []
     b_n = []
+    total = 0
     
     # First recovery
     abs_e = None
     while abs_e == None:
         ctxt, e = encrypt(0, s, verbose=False)
+        total += 1
         abs_e, c_init = recover_abs_e(ctxt, s, False)
     ctxt_p.append(ctxt)
     a, b = ctxt
@@ -96,6 +98,7 @@ def binary_attack():
     
     while True:
         ctxt, e = encrypt(0, s, verbose=False)
+        total += 1
         abs_e, c = recover_abs_e(ctxt, s, verbose=False)
         if abs_e == None:
             continue
@@ -148,7 +151,7 @@ def binary_attack():
         if i != 11:
             s_recovered = M_n.solve_right(V(b_n) - V(abs_e_list_n))
     print(s_recovered == s)
+    print(f"Total encryption: {total}")
 
 def main():
-    s = keygen()
-    binary_attack(s)
+    binary_attack()
