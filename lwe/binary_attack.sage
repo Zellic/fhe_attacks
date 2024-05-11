@@ -60,7 +60,7 @@ def test_abs_recovery(s):
     win = 0
     total = 0
     for i in range(200):
-        ctxt, e = lwe.encrypt(0, s, verbose=False)
+        ctxt, e = lwe.encrypt(0, s, verbose=False, return_e=True)
         abs_e, _ = recover_abs_e(ctxt, s, verbose=False)
         if abs_e == None:
             continue
@@ -88,7 +88,7 @@ def binary_attack():
     # First recovery
     abs_e = None
     while abs_e == None:
-        ctxt, e = lwe.encrypt(0, s, verbose=False)
+        ctxt = lwe.encrypt(0, s, verbose=False)
         total += 1
         abs_e, c_init = recover_abs_e(ctxt, s, False)
     ctxt_p.append(ctxt)
@@ -99,7 +99,7 @@ def binary_attack():
     index_p+=1
     
     while True:
-        ctxt, _ = lwe.encrypt(0, s, verbose=False)
+        ctxt = lwe.encrypt(0, s, verbose=False)
         total += 1
         abs_e, c = recover_abs_e(ctxt, s, verbose=False)
         if abs_e == None:
@@ -137,7 +137,7 @@ def binary_attack():
     if index_p == 64:
         s_recovered = M_p.solve_right(V(b_p) + V(abs_e_list_p))
         for i in range(12):
-            ctxt, _ = lwe.encrypt(0, s)
+            ctxt = lwe.encrypt(0, s)
             m = lwe.decrypt(ctxt, s_recovered)
             if m != 0:
                 break
@@ -146,7 +146,7 @@ def binary_attack():
     else:
         s_recovered = M_n.solve_right(V(b_n) + V(abs_e_list_n))
         for i in range(12):
-            ctxt, _ = lwe.encrypt(0, s)
+            ctxt = lwe.encrypt(0, s)
             m = lwe.decrypt(ctxt, s_recovered)
             if m != 0:
                 break

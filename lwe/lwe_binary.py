@@ -22,7 +22,7 @@ class LWE:
             print("s = ", s, "\n")
         return s
 
-    def encrypt(self, m, s, verbose=False):
+    def encrypt(self, m, s, verbose=False, return_e=False):
         a = vector([self.R.random_element() for _ in range(self.n)])
         e = self.normal()
 
@@ -33,7 +33,9 @@ class LWE:
         if verbose:
             print(f"e = {e}")
             print(f"e = {abs(e):>016b}")
-        return (a, b), e
+        if return_e:
+            return (a, b), e
+        return (a, b)
 
     def decrypt(self, c, s, verbose=False):
         a, b = c
@@ -55,7 +57,7 @@ class LWE:
         for _ in range(1000):
             m = random.randint(0,1)
             s = self.keygen()
-            c, _ = self.encrypt(m, s)
+            c = self.encrypt(m, s)
             assert(m == self.decrypt(c,s))
 
     def test_add(self):
@@ -63,6 +65,6 @@ class LWE:
             m1 = random.randint(0,1)
             m2 = random.randint(0,1)
             s = self.keygen()
-            c1, _ = self.encrypt(m1, s)
-            c2, _ = self.encrypt(m2, s)
+            c1 = self.encrypt(m1, s)
+            c2 = self.encrypt(m2, s)
             assert((m1 + m2) % 2 == (self.decrypt(c1,s) + self.decrypt(c2,s)) % 2)
