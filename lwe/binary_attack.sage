@@ -67,37 +67,87 @@ def test_abs_recovery(s):
         total+=1
     print(f"{win}/{total}")
         
-def binary_attack(s):
-    win = 0
-    total =  0
+def binary_attack():
+    s = keygen()
+    print(s)
+    M_p = matrix(GF(q), n)
+    M_n = matrix(GF(q), n)
+    V = VectorSpace(GF(q), n)
+    ctxt_p = []
+    ctxt_n = []
     abs_e_list_p = []
     abs_e_list_n = []
+    index_p = 0
+    index_n = 0
+    b_p = []
+    b_n = []
     
     # First recovery
-    ctxt, e = encrypt(0, s, verbose=False)
-    print("-----------------------------")
-    print(e)
-    abs_e, c_init = recover_abs_e(ctxt, s, False)
+    abs_e = None
+    while abs_e == None:
+        ctxt, e = encrypt(0, s, verbose=False)
+        abs_e, c_init = recover_abs_e(ctxt, s, False)
+    ctxt_p.append(ctxt)
+    a, b = ctxt
+    M_p[0] = a
+    b_p.append(b)
     abs_e_list_p.append(abs_e)
+    index_p+=1
     
-    for i in range(200):
+    while True:
         ctxt, e = encrypt(0, s, verbose=False)
         abs_e, c = recover_abs_e(ctxt, s, verbose=False)
         if abs_e == None:
             continue
-        print(abs_e)
-        if check_same_sign(c_init, c, s):
+        a, b = ctxt
+        if abs_e == 0:
+            ctxt_p.append(ctxt)
+            ctxt_n.append(ctxt)
+            M_p[index_p] = a
+            M_n[index_n] = a
+            b_p.append(b)
+            b_n.append(b)
             abs_e_list_p.append(abs_e)
-        else:
             abs_e_list_n.append(abs_e)
-        
-        if len(abs_e_list_p) >= 64:
+            index_p += 1
+            index_n += 1
+        elif check_same_sign(c_init, c, s):
+            ctxt_p.append(ctxt)
+            M_p[index_p] = a
+            b_p.append(b)
+            abs_e_list_p.append(abs_e)
+            index_p += 1
+        else:
+            ctxt_n.append(ctxt)
+            M_n[index_n] = a
+            b_n.append(b)
+            abs_e_list_n.append(abs_e)
+            index_n += 1
+        if index_p >= 64:
             break
-        if len(abs_e_list_n) >= 64:
+        if index_n >= 64:
             break
     
-    print(f"{len(abs_e_list_p)}")
-    print(f"{len(abs_e_list_n)}")
+    print(f"Got s:")
+    if index_p == 64:
+        s_recovered = M_p.solve_right(V(b_p) + V(abs_e_list_p))
+        for i in range(12):
+            ctxt, _ = encrypt(0, s)
+            m = decrypt(ctxt, s_recovered)
+            if m != 0:
+                break
+        if i != 11:
+            s_recovered = M_p.solve_right(V(b_p)  - V(abs_e_list_p))
+    else:
+        s_recovered = M_n.solve_right(V(b_n) + V(abs_e_list_n))
+        for i in range(12):
+            ctxt, _ = encrypt(0, s)
+            m = decrypt(ctxt, s_recovered)
+            if m != 0:
+                break
+        if i != 11:
+            s_recovered = M_n.solve_right(V(b_n) - V(abs_e_list_n))
+    print(s_recovered == s)
 
 def main():
     s = keygen()
