@@ -69,9 +69,7 @@ def test_abs_recovery(s):
         total+=1
     print(f"{win}/{total}")
         
-def binary_attack():
-    s = lwe.keygen()
-    print(s)
+def binary_attack(s, verbose = False):
     M_p = matrix(GF(lwe.q), lwe.n)
     M_n = matrix(GF(lwe.q), lwe.n)
     V = VectorSpace(GF(lwe.q), lwe.n)
@@ -128,13 +126,12 @@ def binary_attack():
             b_n.append(b)
             abs_e_list_n.append(abs_e)
             index_n += 1
-        if index_p >= 64:
+        if index_p >= lwe.n:
             break
-        if index_n >= 64:
+        if index_n >= lwe.n:
             break
     
-    print(f"Got s:")
-    if index_p == 64:
+    if index_p == lwe.n:
         s_recovered = M_p.solve_right(V(b_p) + V(abs_e_list_p))
         for i in range(12):
             ctxt = lwe.encrypt(0, s)
@@ -152,8 +149,13 @@ def binary_attack():
                 break
         if i != 11:
             s_recovered = M_n.solve_right(V(b_n) - V(abs_e_list_n))
-    print(s_recovered == s)
-    print(f"Total encryption: {total}")
+    
+    if verbose:
+        print(f"Got s:")
+        print(s_recovered == s)
+        print(f"Total encryption: {total}")
+        
+    return s_recovered
 
 def main():
     binary_attack()
