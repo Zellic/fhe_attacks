@@ -71,16 +71,10 @@ def test_abs_recovery(s):
         
 def binary_attack(s, verbose = False):
     M_p = matrix(GF(lwe.q), lwe.n)
-    M_n = matrix(GF(lwe.q), lwe.n)
     V = VectorSpace(GF(lwe.q), lwe.n)
-    ctxt_p = []
-    ctxt_n = []
     abs_e_list_p = []
-    abs_e_list_n = []
     index_p = 0
-    index_n = 0
     b_p = []
-    b_n = []
     total = 0
     
     # First recovery
@@ -89,7 +83,6 @@ def binary_attack(s, verbose = False):
         ctxt = lwe.encrypt(0, s, verbose=False)
         total += 1
         abs_e, c_init = recover_abs_e(ctxt, s, False)
-    ctxt_p.append(ctxt)
     a, b = ctxt
     M_p[0] = a
     b_p.append(b)
@@ -103,32 +96,16 @@ def binary_attack(s, verbose = False):
         if abs_e == None:
             continue
         a, b = ctxt
+        M_p[index_p] = a
+        b_p.append(b)
+        index_p += 1
         if abs_e == 0:
-            ctxt_p.append(ctxt)
-            ctxt_n.append(ctxt)
-            M_p[index_p] = a
-            M_n[index_n] = a
-            b_p.append(b)
-            b_n.append(b)
             abs_e_list_p.append(abs_e)
-            abs_e_list_n.append(abs_e)
-            index_p += 1
-            index_n += 1
         elif check_same_sign(c_init, c, s):
-            ctxt_p.append(ctxt)
-            M_p[index_p] = a
-            b_p.append(b)
             abs_e_list_p.append(abs_e)
-            index_p += 1
         else:
-            ctxt_n.append(ctxt)
-            M_n[index_n] = a
-            b_n.append(b)
-            abs_e_list_n.append(abs_e)
-            index_n += 1
+            abs_e_list_p.append(lwe.q-abs_e)
         if index_p >= lwe.n:
-            break
-        if index_n >= lwe.n:
             break
     
     if index_p == lwe.n:
@@ -140,15 +117,6 @@ def binary_attack(s, verbose = False):
                 break
         if i != 11:
             s_recovered = M_p.solve_right(V(b_p)  - V(abs_e_list_p))
-    else:
-        s_recovered = M_n.solve_right(V(b_n) + V(abs_e_list_n))
-        for i in range(12):
-            ctxt = lwe.encrypt(0, s)
-            m = lwe.decrypt(ctxt, s_recovered)
-            if m != 0:
-                break
-        if i != 11:
-            s_recovered = M_n.solve_right(V(b_n) - V(abs_e_list_n))
     
     if verbose:
         print(f"Got s:")
