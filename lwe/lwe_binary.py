@@ -31,21 +31,17 @@ class LWE:
 
         b = int(a * s) + m * delta + e
         if verbose:
-            print(f"e = {e}")
-            print(f"e = {abs(e):>016b}")
+            print(f"e = {e} ({e:016b})")
         if return_e:
             return (a, b), e
         return (a, b)
 
     def decrypt(self, c, s, verbose=False):
         a, b = c
-        #m = 0 if abs(b - int(a*s)) <= q//4 else 1
         m = round(2*(b - int(a*s)) / self.q) % 2
         e = int(b - a*s)
         if verbose:
-            print(e)
-            print(f"e = {e:>016b}")
-            print("m = ", m)
+            print(f"e = {e} ({e:016b})")
         return m
 
     def enc_add(self, c1, c2):
