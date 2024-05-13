@@ -22,7 +22,7 @@ fn main() {
     let server_key = ServerKey::new(&client_key);
 
     // The total number of samples is \gamma = NB_ITER * ARRAY_SIZE
-    const NB_ITER: usize = 100*1;
+    const NB_ITER: usize = 2000*1;
     const ARRAY_SIZE: usize = 1*1000;
 
     let start = Instant::now();
