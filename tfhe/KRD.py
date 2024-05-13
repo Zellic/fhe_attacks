@@ -18,7 +18,6 @@ def KRD(ctxt_coeff_list):
     round_err = [[round_error(ctxt_coeff_list[j][i], k) for i in range(n)] for j in range(len(ctxt_coeff_list))]
 
     round_err_avg = np.mean(round_err, axis = 0)
-    print(f"alpha = {round_err_avg}")
     # Empirical value for the distinguisher that lies between the two Gaussians
     alpha_over_2 = np.mean(round_err)
     if alpha_over_2 > 0:

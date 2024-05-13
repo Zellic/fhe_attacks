@@ -1,10 +1,13 @@
-import py_stdin
+import sys
 import KRD
-import math
 import numpy as np
 import matplotlib.pyplot as plt
-# Read from the standard input
-(samples, debug_sk) = py_stdin.recover_lists(py_stdin.read_stdin())
+
+from main import load_samples
+
+# Read from argument
+with open(sys.argv[1], "r") as f:
+     samples, debug_sk = load_samples(f)
 
 lwe_dimension = 600
 f = len(samples)
