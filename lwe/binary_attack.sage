@@ -126,4 +126,5 @@ def binary_attack(s, verbose = False):
     return s_recovered
 
 def main():
-    binary_attack()
+    s = lwe.keygen()
+    print(binary_attack(s))
